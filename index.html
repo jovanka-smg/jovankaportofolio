@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jovan — Interactive Minimal Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;700;800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0b0b0f;
+  --fg: #f4f4f7;
+  --accent: #ff3366;
+  --card: #14141c;
+  --line: rgba(255, 255, 255, 0.08);
+  --glass: rgba(20, 20, 28, 0.65);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  cursor: none !important;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'Figtree', sans-serif;
+  overflow-x: hidden;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Fluid Cursor */
+#cursor {
+  position: fixed;
+  width: 12px;
+  height: 12px;
+  background: var(--accent);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: transform 0.15s var(--ease-spring), width 0.3s var(--ease-spring), height 0.3s var(--ease-spring), background-color 0.3s ease;
+  will-change: transform, width, height;
+}
+
+#cursor-follower {
+  position: fixed;
+  width: 40px;
+  height: 40px;
+  border: 1.5px solid rgba(255, 51, 102, 0.4);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  transition: transform 0.22s var(--ease-smooth);
+  will-change: transform;
+}
+
+body.hovered #cursor {
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.95);
+  mix-blend-mode: difference;
+}
+
+body.hovered #cursor-follower {
+  width: 70px;
+  height: 70px;
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+/* Top Navigation Layout Fix */
+header-nav {
+  position: fixed;
+  top: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  width: min(92%, 850px);
+}
+
+nav {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0.6rem;
+  background: var(--glass);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  gap: 0.5rem;
+}
+
+/* Brand Logo / Nickname */
+.nav-brand {
+  display: flex;
+  align-items: center;
+  padding-left: 0.8rem;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: var(--fg);
+  text-decoration: none;
+  letter-spacing: -0.5px;
+  transition: transform 0.3s var(--ease-spring);
+}
+
+.nav-brand span {
+  color: var(--accent);
+}
+
+.nav-brand:hover {
+  transform: scale(1.05);
+}
+
+/* Nav Menu Items */
+.nav-links-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.nav-links {
+  position: relative;
+  display: flex;
+  gap: 0.2rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 99px;
+  transition: all 0.4s var(--ease-spring);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.nav-item {
+  position: relative;
+  z-index: 1;
+}
+
+.nav-btn {
+  display: block;
+  padding: 0.5rem 1rem;
+  color: #a0a0ab;
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+  border-radius: 99px;
+  transition: color 0.3s ease;
+  border: none;
+  background: none;
+  white-space: nowrap;
+}
+
+.nav-btn:hover {
+  color: var(--fg);
+}
+
+.nav-btn.active {
+  color: #fff;
+}
+
+/* SFX Button Adjustment */
+.sfx-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 99px;
+  background: rgba(255, 51, 102, 0.1);
+  border: 1px solid rgba(255, 51, 102, 0.25);
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 700;
+  transition: all 0.3s var(--ease-spring);
+  white-space: nowrap;
+}
+
+.sfx-toggle:hover {
+  background: var(--accent);
+  color: #fff;
+  transform: scale(1.04);
+  box-shadow: 0 0 20px rgba(255, 51, 102, 0.4);
+}
+
+/* Responsivitas untuk Layar Kecil */
+@media (max-width: 640px) {
+  header-nav {
+    top: 1rem;
+    width: 95%;
+  }
+  .nav-btn {
+    padding: 0.4rem 0.65rem;
+    font-size: 0.8rem;
+  }
+  .sfx-toggle span.sfx-label {
+    display: none;
+  }
+}
+
+/* Base Sections */
+section, header.hero {
+  position: relative;
+  min-height: 100vh;
+  padding: 8rem 2rem 4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+/* Canvas Background */
+#bg-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+h1.interactive-title {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: clamp(2.8rem, 8.5vw, 6.5rem);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -2px;
+  margin-bottom: 1.5rem;
+}
+
+.interactive-title span {
+  display: inline-block;
+  transition: transform 0.4s var(--ease-spring), color 0.3s ease;
+  will-change: transform;
+}
+
+.interactive-title span:hover {
+  transform: translateY(-16px) scale(1.25) rotate(4deg);
+  color: var(--accent);
+}
+
+.tagline {
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  color: #8e8e9a;
+  max-width: 540px;
+  margin: 0 auto 2.5rem;
+}
+
+/* Buttons */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.1rem 2.6rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent), #e02855);
+  border-radius: 99px;
+  text-decoration: none;
+  border: none;
+  box-shadow: 0 10px 30px rgba(255, 51, 102, 0.3);
+  transition: transform 0.3s var(--ease-spring), box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary:hover {
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 20px 40px rgba(255, 51, 102, 0.5);
+}
+
+.btn-primary:active {
+  transform: translateY(-1px) scale(0.97);
+  transition-duration: 0.1s;
+}
+
+/* Horizontal Gallery Section */
+.gallery-section {
+  align-items: flex-start;
+  text-align: left;
+  padding-inline: max(2rem, 5vw);
+}
+
+.gallery-container {
+  display: flex;
+  gap: 2rem;
+  width: 100%;
+  overflow-x: auto;
+  padding: 2rem 0.5rem 3rem;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.gallery-container::-webkit-scrollbar {
+  display: none;
+}
+
+.card {
+  flex: 0 0 min(360px, 80vw);
+  height: 480px;
+  background: var(--card);
+  border-radius: 28px;
+  border: 1px solid var(--line);
+  position: relative;
+  overflow: hidden;
+  scroll-snap-align: start;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  transition: border-color 0.4s ease, transform 0.4s var(--ease-smooth);
+}
+
+.card:hover {
+  border-color: rgba(255, 51, 102, 0.5);
+}
+
+.card-inner {
+  width: 100%;
+  height: 100%;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  transition: transform 0.5s var(--ease-smooth);
+}
+
+.card-inner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(11, 11, 15, 0.95), transparent 70%);
+}
+
+.card-info {
+  position: relative;
+  z-index: 2;
+  transform: translateZ(40px);
+  transition: transform 0.4s var(--ease-spring);
+}
+
+.card-info h3 {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 1.8rem;
+  margin-bottom: 0.25rem;
+}
+
+.card-info p {
+  color: #8e8e9a;
+  font-size: 0.95rem;
+}
+
+/* Physics Canvas */
+#physics-canvas {
+  width: 100%;
+  max-width: 900px;
+  height: 420px;
+  background: var(--card);
+  border-radius: 32px;
+  border: 1px solid var(--line);
+  margin-top: 2rem;
+}
+
+footer {
+  padding: 2rem;
+  text-align: center;
+  color: #555566;
+  font-size: 0.85rem;
+  border-top: 1px solid var(--line);
+}
+</style>
+</head>
+<body>
+
+<!-- Custom Fluid Cursor -->
+<div id="cursor"></div>
+<div id="cursor-follower"></div>
+
+<!-- Glassmorphism Top Navigation dengan Brand Jovan -->
+<header-nav>
+  <nav id="navbar">
+    <!-- 1. Nama Panggilan (Kiri) -->
+    <a href="#home" class="nav-brand interactive-hover">
+      JOVAN<span>.</span>
+    </a>
+
+    <!-- 2. Menu Navigasi Tengah + Magnet Indicator -->
+    <div class="nav-links-wrapper">
+      <div class="nav-indicator" id="nav-indicator"></div>
+      <ul class="nav-links">
+        <li class="nav-item"><a href="#home" class="nav-btn active interactive-hover">Beranda</a></li>
+        <li class="nav-item"><a href="#karya" class="nav-btn interactive-hover">Karya</a></li>
+        <li class="nav-item"><a href="#skills" class="nav-btn interactive-hover">Skills</a></li>
+        <li class="nav-item"><a href="#kontak" class="nav-btn interactive-hover">Kontak</a></li>
+      </ul>
+    </div>
+
+    <!-- 3. SFX Toggle (Kanan) -->
+    <button class="sfx-toggle interactive-hover" id="sfx-btn" aria-label="Toggle SFX">
+      <span id="sfx-icon">🔊</span>
+      <span class="sfx-label">SFX: ON</span>
+    </button>
+  </nav>
+</header-nav>
+
+<!-- Hero Section -->
+<header class="hero" id="home">
+  <canvas id="bg-canvas"></canvas>
+  <div class="hero-content">
+    <h1 class="interactive-title" id="title"></h1>
+    <p class="tagline">Fresh Graduate Creative Designer dengan fokus eksperimen visual interaktif & pengalaman digital immersive.</p>
+    <a href="#karya" class="btn-primary interactive-hover">Jelajahi Portofolio ➔</a>
+  </div>
+</header>
+
+<!-- Horizontal Gallery Section -->
+<section class="gallery-section" id="karya">
+  <h2 style="font-family:'Bricolage Grotesque'; font-size: clamp(2rem, 5vw, 3.5rem); margin-bottom: 0.5rem;">Karya Pilihan</h2>
+  <p style="color:#8e8e9a; margin-bottom: 1.5rem;">Geser horizontal untuk mengeksplorasi proyek ➔</p>
+  
+  <div class="gallery-container">
+    <div class="card interactive-hover">
+      <div class="card-inner" style="background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80');">
+        <div class="card-info">
+          <h3>Senja Sinematik</h3>
+          <p>Fotografi & Color Grading</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card interactive-hover">
+      <div class="card-inner" style="background-image: url('https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=800&q=80');">
+        <div class="card-info">
+          <h3>Ritme Kota</h3>
+          <p>Videografi & Commercial Reel</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card interactive-hover">
+      <div class="card-inner" style="background-image: url('https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=800&q=80');">
+        <div class="card-info">
+          <h3>Lumi Coffee</h3>
+          <p>Branding & Visual Identity</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card interactive-hover">
+      <div class="card-inner" style="background-image: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80');">
+        <div class="card-info">
+          <h3>Loop Motion</h3>
+          <p>2D/3D Animation</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Interactive Physics Skill Section -->
+<section id="skills">
+  <h2 style="font-family:'Bricolage Grotesque'; font-size: clamp(2rem, 5vw, 3.5rem);">Interactive Skills</h2>
+  <p style="color:#8e8e9a; margin-top: 0.5rem;">Klik & Lempar Bola Keterampilan di Bawah</p>
+  <canvas id="physics-canvas" class="interactive-hover"></canvas>
+</section>
+
+<!-- Contact Section -->
+<section id="kontak">
+  <h2 style="font-family:'Bricolage Grotesque'; font-size: clamp(2.5rem, 6vw, 4rem); margin-bottom: 1.5rem;">Siap Berkolaborasi?</h2>
+  <a href="mailto:mhaikaljovanka503@gmail.com" class="btn-primary interactive-hover">Kirim Email Sekarang ✉</a>
+</section>
+
+<footer>
+  <p>© 2026 Muhamad Aldino Haikal Jovanka. Designed with Motion & Code.</p>
+</footer>
+
+<script>
+/* ----------------------------------------------------
+   1. SOOTHING WEB AUDIO API SFX
+---------------------------------------------------- */
+let audioCtx = null;
+let sfxEnabled = true;
+
+function initAudio() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+}
+
+function playSoftHoverSFX() {
+  if (!sfxEnabled) return;
+  try {
+    initAudio();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    const filter = audioCtx.createBiquadFilter();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(320, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(420, audioCtx.currentTime + 0.08);
+
+    filter.type = 'lowpass';
+    filter.frequency.value = 800;
+
+    gain.gain.setValueAtTime(0, audioCtx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.03, audioCtx.currentTime + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.08);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.08);
+  } catch (e) {}
+}
+
+function playSoftClickSFX() {
+  if (!sfxEnabled) return;
+  try {
+    initAudio();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(520, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(260, audioCtx.currentTime + 0.12);
+
+    gain.gain.setValueAtTime(0, audioCtx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.06, audioCtx.currentTime + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.12);
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.12);
+  } catch (e) {}
+}
+
+const sfxBtn = document.getElementById('sfx-btn');
+const sfxIcon = document.getElementById('sfx-icon');
+const sfxLabel = document.querySelector('.sfx-label');
+
+sfxBtn.addEventListener('click', () => {
+  sfxEnabled = !sfxEnabled;
+  sfxIcon.textContent = sfxEnabled ? '🔊' : '🔇';
+  if (sfxLabel) sfxLabel.textContent = sfxEnabled ? 'SFX: ON' : 'SFX: OFF';
+  if (sfxEnabled) playSoftClickSFX();
+});
+
+/* ----------------------------------------------------
+   2. MAGNETIC NAV INDICATOR & SMOOTH TRACKING
+---------------------------------------------------- */
+const navBtns = document.querySelectorAll('.nav-btn');
+const navIndicator = document.getElementById('nav-indicator');
+
+function updateNavIndicator(activeBtn) {
+  if (!activeBtn) return;
+  const rect = activeBtn.getBoundingClientRect();
+  const wrapperRect = activeBtn.closest('.nav-links-wrapper').getBoundingClientRect();
+  
+  navIndicator.style.width = `${rect.width}px`;
+  navIndicator.style.transform = `translateX(${rect.left - wrapperRect.left}px)`;
+}
+
+// Initial Positioning (dengan penundaan singkat agar rendering font selesai)
+window.addEventListener('load', () => {
+  const initialActive = document.querySelector('.nav-btn.active');
+  updateNavIndicator(initialActive);
+});
+
+navBtns.forEach(btn => {
+  btn.addEventListener('mouseenter', (e) => {
+    updateNavIndicator(e.target);
+    playSoftHoverSFX();
+  });
+  
+  btn.addEventListener('click', (e) => {
+    playSoftClickSFX();
+    navBtns.forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    updateNavIndicator(e.target);
+  });
+});
+
+document.querySelector('.nav-links-wrapper').addEventListener('mouseleave', () => {
+  const currentActive = document.querySelector('.nav-btn.active');
+  updateNavIndicator(currentActive);
+});
+
+window.addEventListener('scroll', () => {
+  let current = '';
+  const sections = document.querySelectorAll('section, header.hero');
+  sections.forEach(section => {
+    const sectionTop = section.offsetTop;
+    if (pageYOffset >= sectionTop - 200) {
+      current = section.getAttribute('id');
+    }
+  });
+
+  navBtns.forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.getAttribute('href') === `#${current}`) {
+      btn.classList.add('active');
+      updateNavIndicator(btn);
+    }
+  });
+});
+
+/* ----------------------------------------------------
+   3. FLUID CUSTOM CURSOR
+---------------------------------------------------- */
+const cursor = document.getElementById('cursor');
+const follower = document.getElementById('cursor-follower');
+let mouseX = -100, mouseY = -100;
+let followerX = -100, followerY = -100;
+
+window.addEventListener('mousemove', e => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  cursor.style.left = `${mouseX}px`;
+  cursor.style.top = `${mouseY}px`;
+});
+
+function animateCursor() {
+  followerX += (mouseX - followerX) * 0.12;
+  followerY += (mouseY - followerY) * 0.12;
+  follower.style.left = `${followerX}px`;
+  follower.style.top = `${followerY}px`;
+  requestAnimationFrame(animateCursor);
+}
+animateCursor();
+
+document.addEventListener('mouseover', e => {
+  if (e.target.closest('.interactive-hover, a, button')) {
+    document.body.classList.add('hovered');
+  }
+});
+
+document.addEventListener('mouseout', e => {
+  if (e.target.closest('.interactive-hover, a, button')) {
+    document.body.classList.remove('hovered');
+  }
+});
+
+document.addEventListener('click', () => playSoftClickSFX());
+
+/* ----------------------------------------------------
+   4. INTERACTIVE TYPOGRAPHY
+---------------------------------------------------- */
+const titleText = "MUHAMAD ALDINO";
+const titleContainer = document.getElementById('title');
+
+titleText.split('').forEach(char => {
+  const span = document.createElement('span');
+  span.textContent = char === ' ' ? '\u00A0' : char;
+  span.className = 'interactive-hover';
+  span.addEventListener('mouseenter', playSoftHoverSFX);
+  titleContainer.appendChild(span);
+});
+
+/* ----------------------------------------------------
+   5. BACKGROUND PARTICLES CANVAS
+---------------------------------------------------- */
+const bgCanvas = document.getElementById('bg-canvas');
+const ctx = bgCanvas.getContext('2d');
+let particles = [];
+
+function resizeBg() {
+  bgCanvas.width = window.innerWidth;
+  bgCanvas.height = window.innerHeight;
+}
+resizeBg();
+window.addEventListener('resize', resizeBg);
+
+class Particle {
+  constructor() {
+    this.x = Math.random() * bgCanvas.width;
+    this.y = Math.random() * bgCanvas.height;
+    this.vx = (Math.random() - 0.5) * 1.2;
+    this.vy = (Math.random() - 0.5) * 1.2;
+    this.radius = Math.random() * 2.5 + 1;
+  }
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+    if (this.x < 0 || this.x > bgCanvas.width) this.vx *= -1;
+    if (this.y < 0 || this.y > bgCanvas.height) this.vy *= -1;
+  }
+  draw() {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.fillStyle = '#ff3366';
+    ctx.fill();
+  }
+}
+
+for (let i = 0; i < 50; i++) particles.push(new Particle());
+
+function drawBg() {
+  ctx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+  particles.forEach(p => {
+    p.update();
+    p.draw();
+    const dx = mouseX - p.x;
+    const dy = mouseY - p.y;
+    const dist = Math.hypot(dx, dy);
+    if (dist < 140) {
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      ctx.lineTo(mouseX, mouseY);
+      ctx.strokeStyle = `rgba(255, 51, 102, ${0.4 * (1 - dist / 140)})`;
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+    }
+  });
+  requestAnimationFrame(drawBg);
+}
+drawBg();
+
+/* ----------------------------------------------------
+   6. 3D SMOOTH CARD TILT
+---------------------------------------------------- */
+document.querySelectorAll('.card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    card.style.transform = `rotateX(${-y / 18}deg) rotateY(${x / 18}deg) translateY(-8px)`;
+  });
+
+  card.addEventListener('mouseenter', playSoftHoverSFX);
+
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = 'rotateX(0deg) rotateY(0deg) translateY(0px)';
+  });
+});
+
+/* ----------------------------------------------------
+   7. INTERACTIVE PHYSICS SKILL CANVAS
+---------------------------------------------------- */
+const pCanvas = document.getElementById('physics-canvas');
+const pCtx = pCanvas.getContext('2d');
+
+function resizePhysics() {
+  pCanvas.width = pCanvas.clientWidth;
+  pCanvas.height = pCanvas.clientHeight;
+}
+resizePhysics();
+window.addEventListener('resize', resizePhysics);
+
+const skills = ['Photoshop', 'Premiere Pro', 'After Effects', 'Figma', 'Blender 3D', 'Lightroom'];
+let balls = skills.map((skill, i) => ({
+  text: skill,
+  x: 80 + i * (pCanvas.width / 6.5),
+  y: 80,
+  vx: (Math.random() - 0.5) * 3,
+  vy: Math.random() * 2,
+  radius: 42
+}));
+
+function drawPhysics() {
+  pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+  balls.forEach(b => {
+    b.vy += 0.25;
+    b.x += b.vx;
+    b.y += b.vy;
+
+    if (b.x - b.radius < 0) { b.x = b.radius; b.vx *= -0.85; }
+    if (b.x + b.radius > pCanvas.width) { b.x = pCanvas.width - b.radius; b.vx *= -0.85; }
+    if (b.y + b.radius > pCanvas.height) {
+      b.y = pCanvas.height - b.radius;
+      b.vy *= -0.65;
+      b.vx *= 0.96;
+    }
+
+    pCtx.beginPath();
+    pCtx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+    pCtx.fillStyle = '#ff3366';
+    pCtx.fill();
+    
+    pCtx.fillStyle = '#ffffff';
+    pCtx.font = '600 13px Figtree';
+    pCtx.textAlign = 'center';
+    pCtx.fillText(b.text, b.x, b.y + 4);
+  });
+  requestAnimationFrame(drawPhysics);
+}
+drawPhysics();
+
+pCanvas.addEventListener('click', e => {
+  const rect = pCanvas.getBoundingClientRect();
+  const clickX = e.clientX - rect.left;
+  const clickY = e.clientY - rect.top;
+  
+  balls.forEach(b => {
+    const dist = Math.hypot(clickX - b.x, clickY - b.y);
+    if (dist < b.radius + 20) {
+      b.vy = -12;
+      b.vx = (Math.random() - 0.5) * 12;
+      playSoftClickSFX();
+    }
+  });
+});
+</script>
+</body>
+</html>
